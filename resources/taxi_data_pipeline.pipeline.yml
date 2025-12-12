@@ -18,7 +18,8 @@ resources:
             path: ../pipelines/main_pipeline.py
         # 2) Wheel built from ./src and installed into pipeline env
         # References the artifact defined in databricks.yml
-        - whl: ${artifacts.taxi_dlt_pkg}
+        # The artifact is uploaded to workspace files during deployment
+        - whl: ${workspace.file_path}/.bundle/orchestrated_dlt_pipeline/dev/artifacts/taxi_dlt_pkg-0.1.0-py3-none-any.whl
 
       configuration:
         bundle.sourcePath: ${workspace.file_path}
