@@ -1,7 +1,11 @@
-# NYC Taxi Data Pipeline (Serverless DLT - Medallion Architecture)
+# NYC Taxi Data Pipeline (Lakeflow Spark Declarative Pipeline - Medallion Architecture)
 # Orchestration and transformations are separated:
-# - pipelines/main_pipeline.py: DLT orchestration only
-# - src/taxi_dlt_pkg/: Pure transformation functions (no DLT decorators)
+# - pipelines/main_pipeline.py: Pipeline orchestration only
+# - src/taxi_dlt_pkg/: Pure transformation functions (no pipeline decorators)
+#
+# For LDP (Lakeflow Spark Declarative Pipelines), Python dependencies including wheels
+# are specified in the environment section, not the libraries section.
+# See: https://docs.databricks.com/aws/en/ldp/developer/external-dependencies
 
 resources:
   pipelines:
@@ -13,13 +17,21 @@ resources:
       channel: CURRENT
 
       libraries:
-        # 1) Pipeline source file (orchestration)
+        # Pipeline source file (orchestration)
         - file:
             path: ../pipelines/main_pipeline.py
-        # 2) Wheel built from ./src and installed into pipeline env
-        # Using artifact reference - the artifact is automatically uploaded during deployment
-        # Alternative: Use direct workspace path if artifact reference doesn't work
-        - whl: ${workspace.file_path}/.bundle/orchestrated_dlt_pipeline/dev/artifacts/taxi_dlt_pkg-0.1.0-py3-none-any.whl
+
+      # Environment settings for Python dependencies (LDP approach)
+      # This is where Python packages and wheels are specified for LDP pipelines
+      # See: https://docs.databricks.com/aws/en/ldp/developer/external-dependencies
+      environment:
+        dependencies:
+          # Install the wheel package from the uploaded artifact
+          # Option 1: Use workspace file path (for development)
+          # The wheel is uploaded to workspace during bundle deployment
+          - ${workspace.file_path}/.bundle/orchestrated_dlt_pipeline/dev/artifacts/taxi_dlt_pkg-0.1.0-py3-none-any.whl
+          # Option 2: If using Unity Catalog volume (recommended for production):
+          # - /Volumes/${var.catalog}/${var.schema}/pipeline_artifacts/taxi_dlt_pkg-0.1.0-py3-none-any.whl
 
       configuration:
         bundle.sourcePath: ${workspace.file_path}
