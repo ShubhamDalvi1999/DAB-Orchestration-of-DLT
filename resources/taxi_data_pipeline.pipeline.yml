@@ -6,7 +6,7 @@
 resources:
   pipelines:
     taxi_data_pipeline:
-      name: taxi_data_pipeline
+      name: orchestrated_dlt_pipeline
       catalog: ${var.catalog}
       schema: ${var.schema}
       serverless: true
