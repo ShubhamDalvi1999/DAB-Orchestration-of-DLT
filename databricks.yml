@@ -1,0 +1,46 @@
+# Databricks Asset Bundle definition for Taxi DLT Pipeline
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+#
+# This bundle defines:
+# - A DLT pipeline with separated orchestration and transformations
+# - Wheel artifact for the transformation package
+# - Variables for catalog and schema configuration
+
+bundle:
+  name: orchestrated_dlt_pipeline
+  # UUID can be regenerated with: databricks bundle init
+  uuid: 12345678-1234-1234-1234-123456789012
+
+include:
+  - resources/*.yml
+
+artifacts:
+  taxi_dlt_pkg:
+    type: whl
+    build: uv build --wheel
+
+# Variable declarations. These variables are assigned in the dev/prod targets below.
+variables:
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    # When deploying from within Databricks workspace, omit the workspace section
+    # When deploying from local CLI, uncomment and set the workspace host:
+    # workspace:
+    #   host: ${env.DATABRICKS_HOST}
+    #   # Or use a Databricks CLI profile:
+    #   # profile: DEV
+    variables:
+      catalog: catalog1
+      schema: default
+

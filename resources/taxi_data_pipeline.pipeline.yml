@@ -1,0 +1,25 @@
+# NYC Taxi Data Pipeline (Serverless DLT - Medallion Architecture)
+# Orchestration and transformations are separated:
+# - pipelines/main_pipeline.py: DLT orchestration only
+# - src/taxi_dlt_pkg/: Pure transformation functions (no DLT decorators)
+
+resources:
+  pipelines:
+    taxi_data_pipeline:
+      name: taxi_data_pipeline
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      serverless: true
+      channel: CURRENT
+
+      libraries:
+        # 1) Pipeline source file (orchestration)
+        - file:
+            path: ../pipelines/main_pipeline.py
+        # 2) Wheel built from ./src and installed into pipeline env
+        # References the artifact defined in databricks.yml
+        - whl: ${artifacts.taxi_dlt_pkg}
+
+      configuration:
+        bundle.sourcePath: ${workspace.file_path}
+
